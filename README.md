@@ -22,7 +22,7 @@
 
 ### ✏️ 在线笔记
 
-[https://megasu.gitee.io/uni-app-shop-note/](https://megasu.gitee.io/uni-app-shop-note/)
+[https://megasu.atomgit.net/uni-app-shop-note/uni-app/](https://megasu.atomgit.net/uni-app-shop-note/uni-app/)
 
 ### 📦 项目源码
 
