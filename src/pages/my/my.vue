@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
-import '@/utils/http'
+import { http } from '@/utils/http'
 
 const memberStore = useMemberStore()
 
-const getTestData = () => {
-    uni.request({
+const getTestData = async () => {
+    // 传入泛型string[]
+    const res = await http<string[]>({
         method: 'GET',
-        url: '/home/banner',
+        url: '',
+        header: {}
     })
+    console.log('请求成功', res.result);
 }
 </script>
 
