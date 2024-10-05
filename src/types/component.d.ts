@@ -4,8 +4,8 @@
  *      现调整为
  *  declare module 'vue'
  */
-import XtxSwiper from '../components/XtxSwiper.vue'
-import XtxGuess from '../components/XtxGuess.vue'
+import XtxSwiper from '@/components/XtxSwiper.vue'
+import XtxGuess from '@/components/XtxGuess.vue'
 
 declare module 'vue' {
     export interface GlobalComponents {
@@ -13,3 +13,6 @@ declare module 'vue' {
         XtxGuess: typeof XtxGuess
     }
 }
+
+// 组件实例类型，给ref用的
+export type XtxGuessInstance = InstanceType<typeof XtxGuess>
