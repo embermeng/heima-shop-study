@@ -5,7 +5,6 @@ import { ref } from 'vue'
 const activeIndex = ref(0)
 
 const onChange: UniHelper.SwiperOnChange = (ev) => {
-    console.log(ev.detail?.current);
     // ! 是非空断言，主观上排除空值情况
     activeIndex.value = ev.detail!.current
 }
@@ -13,7 +12,6 @@ const onChange: UniHelper.SwiperOnChange = (ev) => {
 const props = defineProps<{
     data: BannerItem[]
 }>()
-console.log(props);
 
 </script>
 
