@@ -43,12 +43,23 @@ const onScrolltolower = () => {
     console.log('滚动触底了！');
     guessRef.value?.getMore()
 }
+
+const isTrigger = ref(false)
+// 自定义下拉刷新被触发
+const onRefresherAct = async () => {
+    isTrigger.value = true
+    // 重置猜你喜欢组件数据
+    guessRef.value?.resetData()
+    await Promise.all([getHomeBannerData(), getHomeCategoryData(), getHomeHotData(), guessRef.value?.getMore()])
+    isTrigger.value = false
+}
 </script>
 
 <template>
     <!-- 自定义导航栏 -->
     <CustomNavbar />
-    <scroll-view @scrolltolower="onScrolltolower" class="scroll-view" scroll-y>
+    <scroll-view @scrolltolower="onScrolltolower" class="scroll-view" scroll-y :refresher-enabled="true"
+        @refresherrefresh="onRefresherAct" :refresher-triggered="isTrigger">
         <!-- 自定义轮播图 -->
         <XtxSwiper :data="bannerList" />
         <!-- 分类面板 -->
@@ -56,7 +67,7 @@ const onScrolltolower = () => {
         <!-- 热门推荐 -->
         <HotPanel :data="hotList" />
         <!-- 猜你喜欢 -->
-        <XtxGuess ref="guessRef"/>
+        <XtxGuess ref="guessRef" />
     </scroll-view>
 </template>
 
@@ -67,6 +78,7 @@ page {
     display: flex;
     flex-direction: column;
 }
+
 .scroll-view {
     flex: 1;
 }
