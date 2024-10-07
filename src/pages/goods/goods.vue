@@ -25,7 +25,7 @@ onLoad(() => {
 
 // 轮播图变化时
 const curIndex = ref(0)
-const onChange:UniHelper.SwiperOnChange = (ev) => {
+const onChange: UniHelper.SwiperOnChange = (ev) => {
     console.log(ev.detail.current);
     curIndex.value = ev.detail!.current
 }
@@ -37,6 +37,13 @@ const onTapImg = (url: string) => {
         urls: goods.value!.mainPictures
     })
 }
+
+// 弹出层组件ref
+const popup = ref<{
+    open: (type?: UniHelper.UniPopupType) => void,
+    close: () => void,
+}>()
+
 </script>
 
 <template>
@@ -47,8 +54,7 @@ const onTapImg = (url: string) => {
             <view class="preview">
                 <swiper @change="onChange" circular>
                     <swiper-item v-for="(item, index) in goods?.mainPictures" :key="item">
-                        <image @tap="onTapImg(item)" mode="aspectFill"
-                            :src="item" />
+                        <image @tap="onTapImg(item)" mode="aspectFill" :src="item" />
                     </swiper-item>
                 </swiper>
                 <view class="indicator">
@@ -78,7 +84,7 @@ const onTapImg = (url: string) => {
                     <text class="label">送至</text>
                     <text class="text ellipsis"> 请选择收获地址 </text>
                 </view>
-                <view class="item arrow">
+                <view @tap="popup?.open('bottom')" class="item arrow">
                     <text class="label">服务</text>
                     <text class="text ellipsis"> 无忧退 快速退款 免费包邮 </text>
                 </view>
@@ -112,8 +118,7 @@ const onTapImg = (url: string) => {
             <view class="content">
                 <navigator v-for="item in goods?.similarProducts" :key="item.id" class="goods" hover-class="none"
                     :url="`/pages/goods/goods?id=${item.id}`">
-                    <image class="image" mode="aspectFill"
-                        :src="item.picture"></image>
+                    <image class="image" mode="aspectFill" :src="item.picture"></image>
                     <view class="name ellipsis">{{ item.name }}</view>
                     <view class="price">
                         <text class="symbol">¥</text>
@@ -140,6 +145,13 @@ const onTapImg = (url: string) => {
             <view class="buynow"> 立即购买 </view>
         </view>
     </view>
+
+    <!-- uni-ui 弹出层 -->
+    <uni-popup ref="popup" type="bottom" background-color="#fff">
+        <view>内容1</view>
+        <view>内容2</view>
+        <button @tap="popup?.close()">关闭弹出层</button>
+    </uni-popup>
 </template>
 
 <style lang="scss">
