@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getMemberProfileApi, putMemberProfileAPI } from '@/services/profile'
+import { useMemberStore } from '@/stores';
 import type { ProfileDetail } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -28,6 +29,8 @@ const bindCityPickerChange = (ev: any) => {
     profile.value!.fullLocation = ev.detail.value.join(' ')
 }
 
+const memberStore = useMemberStore()
+
 // 修改头像
 const onAvatarChange = () => {
     // 调用拍照/选择图片
@@ -46,11 +49,11 @@ const onAvatarChange = () => {
                 success: (res) => {
                     if (res.statusCode === 200) {
                         const avatar = JSON.parse(res.data).result.avatar
+                        // 个人信息页数据更新
                         profile.value!.avatar = avatar
-                        uni.showToast({
-                            icon: 'none',
-                            title: '更新成功',
-                        })
+                        // Store头像更新
+                        memberStore.profile!.avatar = avatar
+                        uni.showToast({ icon: 'none', title: '更新成功', })
                     } else {
                         uni.showToast({
                             icon: 'error',
@@ -68,10 +71,15 @@ const onSubmit = async () => {
     const res = await putMemberProfileAPI({
         nickname: profile.value?.nickname,
     })
+    // 更新store昵称
+    memberStore.profile!.nickname = res.result.nickname
     uni.showToast({
         title: '保存成功',
         icon: 'success',
     })
+    setTimeout(() => {
+        uni.navigateBack()
+    }, 500);
 }
 </script>
 
@@ -79,11 +87,7 @@ const onSubmit = async () => {
     <view class="viewport">
         <!-- 导航栏 -->
         <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
-            <navigator
-                open-type="navigateBack"
-                class="back icon-left"
-                hover-class="none"
-            ></navigator>
+            <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
             <view class="title">个人信息</view>
         </view>
         <!-- 头像 -->
@@ -103,12 +107,7 @@ const onSubmit = async () => {
                 </view>
                 <view class="form-item">
                     <text class="label">昵称</text>
-                    <input
-                        class="input"
-                        type="text"
-                        placeholder="请填写昵称"
-                        v-model="profile!.nickname"
-                    />
+                    <input class="input" type="text" placeholder="请填写昵称" v-model="profile!.nickname" />
                 </view>
                 <view class="form-item">
                     <text class="label">性别</text>
@@ -125,38 +124,23 @@ const onSubmit = async () => {
                 </view>
                 <view class="form-item">
                     <text class="label">生日</text>
-                    <picker
-                        class="picker"
-                        mode="date"
-                        start="1900-01-01"
-                        :end="new Date()"
-                        @change="bindDatePickerChange"
-                        :value="profile?.birthday"
-                    >
+                    <picker class="picker" mode="date" start="1900-01-01" :end="new Date()"
+                        @change="bindDatePickerChange" :value="profile?.birthday">
                         <view v-if="profile?.birthday">{{ profile?.birthday }}</view>
                         <view class="placeholder" v-else>请选择日期</view>
                     </picker>
                 </view>
                 <view class="form-item">
                     <text class="label">城市</text>
-                    <picker
-                        class="picker"
-                        mode="region"
-                        @change="bindCityPickerChange"
-                        :value="profile?.fullLocation?.split(' ')"
-                    >
+                    <picker class="picker" mode="region" @change="bindCityPickerChange"
+                        :value="profile?.fullLocation?.split(' ')">
                         <view v-if="profile?.fullLocation">{{ profile.fullLocation }}</view>
                         <view class="placeholder" v-else>请选择城市</view>
                     </picker>
                 </view>
                 <view class="form-item">
                     <text class="label">职业</text>
-                    <input
-                        class="input"
-                        type="text"
-                        placeholder="请填写职业"
-                        :value="profile?.profession"
-                    />
+                    <input class="input" type="text" placeholder="请填写职业" :value="profile?.profession" />
                 </view>
             </view>
             <!-- 提交按钮 -->
