@@ -114,7 +114,9 @@
 				{
 					"path": "profile/profile",
 					"style": {
-						"navigationBarTitleText": "个人信息"
+						"navigationBarTitleText": "个人信息",
+                        "navigationStyle": "custom",
+                        "navigationBarTextStyle": "white"
 					}
 				}
 			]
