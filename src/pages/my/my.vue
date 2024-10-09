@@ -11,7 +11,7 @@ const orderTypes = [
   { type: 4, text: '待评价', icon: 'icon-comment' },
 ]
 
-// 获取会员信息
+// 获取会员信息1
 const memberStore = useMemberStore()
 </script>
 
