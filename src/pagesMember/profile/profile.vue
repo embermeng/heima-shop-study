@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getMemberProfileApi } from '@/services/profile'
+import { getMemberProfileApi, putMemberProfileAPI } from '@/services/profile'
 import type { ProfileDetail } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -7,8 +7,8 @@ import { ref } from 'vue'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 获取个人信息
-const profile = ref<ProfileDetail>()
+// 获取个人信息，修改个人信息需提供初始值
+const profile = ref({} as ProfileDetail)
 const getMemberProfileData = async () => {
     const res = await getMemberProfileApi()
     profile.value = res.result
@@ -27,6 +27,52 @@ const bindCityPickerChange = (ev: any) => {
     console.log(ev.detail, profile.value)
     profile.value!.fullLocation = ev.detail.value.join(' ')
 }
+
+// 修改头像
+const onAvatarChange = () => {
+    // 调用拍照/选择图片
+    uni.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        success(res) {
+            // 本地路径
+            const { tempFilePath } = res.tempFiles[0]
+            // 文件上传
+            uni.uploadFile({
+                url: '/member/profile/avatar',
+                fileType: 'image',
+                filePath: tempFilePath,
+                name: 'file',
+                success: (res) => {
+                    if (res.statusCode === 200) {
+                        const avatar = JSON.parse(res.data).result.avatar
+                        profile.value!.avatar = avatar
+                        uni.showToast({
+                            icon: 'none',
+                            title: '更新成功',
+                        })
+                    } else {
+                        uni.showToast({
+                            icon: 'error',
+                            title: '上传失败',
+                        })
+                    }
+                },
+            })
+        },
+    })
+}
+
+// 点击保存
+const onSubmit = async () => {
+    const res = await putMemberProfileAPI({
+        nickname: profile.value?.nickname,
+    })
+    uni.showToast({
+        title: '保存成功',
+        icon: 'success',
+    })
+}
 </script>
 
 <template>
@@ -42,7 +88,7 @@ const bindCityPickerChange = (ev: any) => {
         </view>
         <!-- 头像 -->
         <view class="avatar">
-            <view class="avatar-content">
+            <view @tap="onAvatarChange" class="avatar-content">
                 <image class="image" :src="profile?.avatar" mode="aspectFill" />
                 <text class="text">点击修改头像</text>
             </view>
@@ -61,7 +107,7 @@ const bindCityPickerChange = (ev: any) => {
                         class="input"
                         type="text"
                         placeholder="请填写昵称"
-                        :value="profile?.nickname"
+                        v-model="profile!.nickname"
                     />
                 </view>
                 <view class="form-item">
@@ -114,7 +160,7 @@ const bindCityPickerChange = (ev: any) => {
                 </view>
             </view>
             <!-- 提交按钮 -->
-            <button class="form-button">保 存</button>
+            <button @tap="onSubmit" class="form-button">保 存</button>
         </view>
     </view>
 </template>
