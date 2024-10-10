@@ -1,12 +1,15 @@
 <script setup lang="ts">
 /* eslint-disable */
-import { computed, defineProps, ref } from 'vue';
-import { getGoodsByIdApi } from '@/services/goods';
-import { onLoad } from '@dcloudio/uni-app';
-import type { GoodsResult } from '@/types/goods';
-import AddressPanel from './components/AddressPanel.vue';
-import ServicePanel from './components/ServicePanel.vue';
-import type { SkuPopupInstance, SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup';
+import { computed, defineProps, ref } from 'vue'
+import { getGoodsByIdApi } from '@/services/goods'
+import { onLoad } from '@dcloudio/uni-app'
+import type { GoodsResult } from '@/types/goods'
+import AddressPanel from './components/AddressPanel.vue'
+import ServicePanel from './components/ServicePanel.vue'
+import type {
+    SkuPopupInstance,
+    SkuPopupLocaldata,
+} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -29,7 +32,7 @@ const getGoodsByIdData = async () => {
         spec_list: res.result.specs.map((item) => {
             return {
                 name: item.name,
-                list: item.values
+                list: item.values,
             }
         }),
         sku_list: res.result.skus.map((item) => {
@@ -40,9 +43,9 @@ const getGoodsByIdData = async () => {
                 image: item.picture,
                 price: item.price * 100, // 价格需要乘 100
                 stock: item.inventory,
-                sku_name_arr: item.specs.map((v) => v.valueName)
+                sku_name_arr: item.specs.map((v) => v.valueName),
             }
-        })
+        }),
     }
 }
 
@@ -53,7 +56,7 @@ onLoad(() => {
 // 轮播图变化时
 const curIndex = ref(0)
 const onChange: UniHelper.SwiperOnChange = (ev) => {
-    console.log(ev.detail.current);
+    console.log(ev.detail.current)
     curIndex.value = ev.detail!.current
 }
 
@@ -61,14 +64,14 @@ const onTapImg = (url: string) => {
     // 大图预览
     uni.previewImage({
         current: url,
-        urls: goods.value!.mainPictures
+        urls: goods.value!.mainPictures,
     })
 }
 
 // 弹出层组件ref
 const popup = ref<{
-    open: (type?: UniHelper.UniPopupType) => void,
-    close: () => void,
+    open: (type?: UniHelper.UniPopupType) => void
+    close: () => void
 }>()
 
 // 弹出层条件渲染
@@ -87,7 +90,7 @@ const localdata = ref({} as SkuPopupLocaldata)
 enum SkuMode {
     Both = 1,
     Cart = 2,
-    Buy = 3
+    Buy = 3,
 }
 const mode = ref<SkuMode>(SkuMode.Both)
 // 打开Sku弹窗修改按钮模式
@@ -105,8 +108,15 @@ const selectArrText = computed(() => {
 
 <template>
     <!-- SKU弹窗组件 -->
-    <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localdata" :mode="mode" add-cart-background-color="#FFA868"
-        buy-now-background-color="#27BA9B" :actived-style="{ color: '#27BA9B', borderColor: '#27BA9B', backgroundColor: '#E9F8F5'}" ref="skuPopupRef" />
+    <vk-data-goods-sku-popup
+        v-model="isShowSku"
+        :localdata="localdata"
+        :mode="mode"
+        add-cart-background-color="#FFA868"
+        buy-now-background-color="#27BA9B"
+        :actived-style="{ color: '#27BA9B', borderColor: '#27BA9B', backgroundColor: '#E9F8F5' }"
+        ref="skuPopupRef"
+    />
     <scroll-view scroll-y class="viewport">
         <!-- 基本信息 -->
         <view class="goods">
@@ -159,13 +169,22 @@ const selectArrText = computed(() => {
             <view class="content">
                 <view class="properties">
                     <!-- 属性详情 -->
-                    <view class="item" v-for="(item, index) in goods?.details.properties" :key="item.name">
+                    <view
+                        class="item"
+                        v-for="(item, index) in goods?.details.properties"
+                        :key="item.name"
+                    >
                         <text class="label">{{ item.name }}</text>
                         <text class="value">{{ item.value }}</text>
                     </view>
                 </view>
                 <!-- 图片详情 -->
-                <image v-for="(item, index) in goods?.details.pictures" :key="item" mode="widthFix" :src="item">
+                <image
+                    v-for="(item, index) in goods?.details.pictures"
+                    :key="item"
+                    mode="widthFix"
+                    :src="item"
+                >
                 </image>
             </view>
         </view>
@@ -176,8 +195,13 @@ const selectArrText = computed(() => {
                 <text>同类推荐</text>
             </view>
             <view class="content">
-                <navigator v-for="item in goods?.similarProducts" :key="item.id" class="goods" hover-class="none"
-                    :url="`/pages/goods/goods?id=${item.id}`">
+                <navigator
+                    v-for="item in goods?.similarProducts"
+                    :key="item.id"
+                    class="goods"
+                    hover-class="none"
+                    :url="`/pages/goods/goods?id=${item.id}`"
+                >
                     <image class="image" mode="aspectFill" :src="item.picture"></image>
                     <view class="name ellipsis">{{ item.name }}</view>
                     <view class="price">
@@ -480,7 +504,7 @@ page {
     .buttons {
         display: flex;
 
-        &>view {
+        & > view {
             width: 220rpx;
             text-align: center;
             line-height: 72rpx;
