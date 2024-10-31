@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables/index'
-import { onReady } from '@dcloudio/uni-app'
+import { OrderState, orderStateList } from '@/services/const';
+import { getMemberOrderByIdApi } from '@/services/order'
+import type { OrderResult } from '@/types/order';
+import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
 // 获取屏幕边界到安全区域距离
@@ -50,29 +53,30 @@ onReady(() => {
         },
     )
     // 动画效果-导航栏标题
-    pageIns.animate(
-        '.navbar .title',
-        [{ color: 'transparent' }, { color: '#000' }],
-        1000,
-        {
-            scrollSource: '#scroller',
-            timeRange: 1000,
-            startScrollOffset: 0,
-            endScrollOffset: 50,
-        },
-    )
+    pageIns.animate('.navbar .title', [{ color: 'transparent' }, { color: '#000' }], 1000, {
+        scrollSource: '#scroller',
+        timeRange: 1000,
+        startScrollOffset: 0,
+        endScrollOffset: 50,
+    })
     // 动画效果-导航栏返回按钮
-    pageIns.animate(
-        '.navbar .back',
-        [{ color: '#fff' }, { color: '#000' }],
-        1000,
-        {
-            scrollSource: '#scroller',
-            timeRange: 1000,
-            startScrollOffset: 0,
-            endScrollOffset: 50,
-        },
-    )
+    pageIns.animate('.navbar .back', [{ color: '#fff' }, { color: '#000' }], 1000, {
+        scrollSource: '#scroller',
+        timeRange: 1000,
+        startScrollOffset: 0,
+        endScrollOffset: 50,
+    })
+})
+
+// 获取订单详情
+const orderDetail = ref<OrderResult>()
+const getMemberOrderByIdData = async () => {
+    const res = await getMemberOrderByIdApi(query.id)
+    orderDetail.value = res.result
+}
+
+onLoad(() => {
+    getMemberOrderByIdData()
 })
 </script>
 
@@ -91,11 +95,11 @@ onReady(() => {
         </view>
     </view>
     <scroll-view scroll-y class="viewport" id="scroller" @scrolltolower="onScrolltolower">
-        <template v-if="true">
+        <template v-if="orderDetail">
             <!-- 订单状态 -->
             <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
                 <!-- 待付款状态:展示去支付按钮和倒计时 -->
-                <template v-if="true">
+                <template v-if="orderDetail?.orderState === OrderState.DaiFuKuan">
                     <view class="status icon-clock">等待付款</view>
                     <view class="tips">
                         <text class="money">应付金额: ¥ 99.00</text>
@@ -107,7 +111,7 @@ onReady(() => {
                 <!-- 其他订单状态:展示再次购买按钮 -->
                 <template v-else>
                     <!-- 订单状态文字 -->
-                    <view class="status"> 待付款 </view>
+                    <view class="status"> {{ orderStateList[orderDetail.orderState].text }} </view>
                     <view class="button-group">
                         <navigator
                             class="button"
