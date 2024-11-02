@@ -4,10 +4,11 @@ import { OrderState, orderStateList } from '@/services/const'
 import {
     getMemberOrderByIdApi,
     getMemberOrderConsignmentByIdAPI,
+    getMemberOrderLogisticsByIdAPI,
     putMemberOrderReceiptByIdAPI,
 } from '@/services/order'
 import { getPayMockApi, getPayWxPayMiniPayApi } from '@/services/pay'
-import type { OrderResult } from '@/types/order'
+import type { LogisticItem, OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -78,6 +79,20 @@ const orderDetail = ref<OrderResult>()
 const getMemberOrderByIdData = async () => {
     const res = await getMemberOrderByIdApi(query.id)
     orderDetail.value = res.result
+    if (
+        [OrderState.DaiShouHuo, OrderState.DaiPingJia, OrderState.YiWanCheng].includes(
+            orderDetail.value.orderState,
+        )
+    ) {
+        getMemberOrderLogisticsByIdData()
+    }
+}
+
+// 获取物流信息
+const logisticList = ref<LogisticItem[]>([])
+const getMemberOrderLogisticsByIdData = async () => {
+    const res = await getMemberOrderLogisticsByIdAPI(query.id)
+    logisticList.value = res.result.list
 }
 
 onLoad(() => {
@@ -125,6 +140,7 @@ const onOrderConfirm = () => {
         success: async ({ confirm, cancel }) => {
             if (confirm) {
                 const res = await putMemberOrderReceiptByIdAPI(query.id)
+                uni.showToast({ icon: 'success', title: '确认收货成功' })
                 // 更新订单状态
                 orderDetail.value = res.result
             }
@@ -200,16 +216,18 @@ const onOrderConfirm = () => {
             <!-- 配送状态 -->
             <view class="shipment">
                 <!-- 订单物流信息 -->
-                <view v-for="item in 1" :key="item" class="item">
+                <view v-for="item in logisticList" :key="item.id" class="item">
                     <view class="message">
-                        您已在广州市天河区黑马程序员完成取件，感谢使用菜鸟驿站，期待再次为您服务。
+                        {{ item.text }}
                     </view>
-                    <view class="date"> 2023-04-14 13:14:20 </view>
+                    <view class="date"> {{ item.time }} </view>
                 </view>
                 <!-- 用户收货地址 -->
                 <view class="locate">
-                    <view class="user"> 张三 13333333333 </view>
-                    <view class="address"> 广东省 广州市 天河区 黑马程序员 </view>
+                    <view class="user">
+                        {{ orderDetail.receiverContact }} {{ orderDetail.receiverMobile }}
+                    </view>
+                    <view class="address"> {{ orderDetail.receiverAddress }} </view>
                 </view>
             </view>
 
