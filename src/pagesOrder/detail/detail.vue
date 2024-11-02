@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables/index'
 import { OrderState, orderStateList } from '@/services/const'
-import { getMemberOrderByIdApi, getMemberOrderConsignmentByIdAPI } from '@/services/order'
+import {
+    getMemberOrderByIdApi,
+    getMemberOrderConsignmentByIdAPI,
+    putMemberOrderReceiptByIdAPI,
+} from '@/services/order'
 import { getPayMockApi, getPayWxPayMiniPayApi } from '@/services/pay'
 import type { OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
@@ -90,6 +94,7 @@ const onTimeUp = () => {
 // 是否为开发环境
 const isDev = import.meta.env.DEV
 const onOrderPay = async () => {
+    // 仅在开发环境下使用，打包到生产环境会剔除一下代码（tree shaking 树摇优化）
     if (isDev) {
         // 开发环境模拟支付
         await getPayMockApi({ orderId: query.id })
@@ -110,6 +115,21 @@ const onOrderSend = async () => {
         // 主动更新订单状态
         orderDetail.value!.orderState = OrderState.DaiShouHuo
     }
+}
+
+// 确认收货
+const onOrderConfirm = () => {
+    // 二次确认弹窗
+    uni.showModal({
+        content: '为保障您的权益，请收到货并确认无误后，再确认收货',
+        success: async ({ confirm, cancel }) => {
+            if (confirm) {
+                const res = await putMemberOrderReceiptByIdAPI(query.id)
+                // 更新订单状态
+                orderDetail.value = res.result
+            }
+        },
+    })
 }
 </script>
 
@@ -168,6 +188,12 @@ const onOrderSend = async () => {
                         >
                             模拟发货
                         </view>
+                        <view
+                            v-if="orderDetail.orderState === OrderState.DaiShouHuo"
+                            @tap="onOrderConfirm"
+                            class="button"
+                            >确认收货</view
+                        >
                     </view>
                 </template>
             </view>
