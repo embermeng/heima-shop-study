@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables/index'
-import { OrderState, orderStateList } from '@/services/const';
+import { OrderState, orderStateList } from '@/services/const'
 import { getMemberOrderByIdApi } from '@/services/order'
-import type { OrderResult } from '@/types/order';
+import type { OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -78,6 +78,12 @@ const getMemberOrderByIdData = async () => {
 onLoad(() => {
     getMemberOrderByIdData()
 })
+
+// 倒计时结束
+const onTimeUp = () => {
+    // 修改订单状态为已取消
+    orderDetail.value!.orderState = OrderState.YiQuXiao
+}
 </script>
 
 <template>
@@ -104,7 +110,14 @@ onLoad(() => {
                     <view class="tips">
                         <text class="money">应付金额: ¥ 99.00</text>
                         <text class="time">支付剩余</text>
-                        00 时 29 分 59 秒
+                        <uni-countdown
+                            :second="orderDetail.countdown"
+                            color="#fff"
+                            splitor-color="#fff"
+                            :show-day="false"
+                            :show-colon="false"
+                            @timeup="onTimeUp"
+                        />
                     </view>
                     <view class="button">去支付</view>
                 </template>
